@@ -142,14 +142,16 @@
                     ALL PRODUCTS
                 </a>
             </nav>
-            
-            <div class="mt-8 space-y-4">
+                <div class="mt-8 space-y-4">
                 <a href="#" class="block text-sm font-medium text-gray-900 hover:text-gray-700 py-2">SEARCH</a>
-                
-                <a class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
+                <a href="{% url 'users:profile' %}" 
+                hx-get="{% url 'users:profile' %}" 
+                hx-target="#main-content" 
+                hx-push-url="true"
+                class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
                     ACCOUNT
                 </a>
-                <a href="#" id="mobileCart" class="block text-sm font-medium text-gray-900 hover:text-gray-700 py-2">MyWishes</a>
+                <a href="#" id="mobileCart" class="block text-sm font-medium text-gray-900 hover:text-gray-700 py-2">CART (0)</a>
             </div>
         </div>
     </div>
@@ -199,10 +201,14 @@
                             SEARCH
                         </button>
                     </div>
-                    <a class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
+                    <a href="{% url 'users:profile' %}" 
+                    hx-get="{% url 'users:profile' %}" 
+                    hx-target="#main-content" 
+                    hx-push-url="true"
+                    class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
                         ACCOUNT
                     </a>
-                    <a href="#" id="desktopCart" class="text-sm font-medium text-gray-900 hover:text-gray-700">MyWISHES</a>
+                    <a href="#" id="desktopCart" class="text-sm font-medium text-gray-900 hover:text-gray-700">CART (0)</a>
                 </div>
                 
                 <!-- Mobile Cart Icon -->
