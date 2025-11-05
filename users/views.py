@@ -1,14 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect , get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.template.response import TemplateResponse
-from .forms import CustomUserCreationForm, CustomUserLoginForm, CustomUserUpdateForm
+from .forms import CustomUserCreationForm, CustomUserLoginForm, CustomUserUpdateForm , AddProductForm
 from .models import CustomUser
 from django.contrib import messages
 from main.models import Product
-
+from django.views.generic import TemplateView, DetailView
+from django.contrib.auth import update_session_auth_hash
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -38,7 +39,7 @@ def profile_view(request):
         if form.is_valid():
             form.save()
             if request.headers.get("HX-Request"):
-                return HttpResponse(headers={'HX-Redirect': reverse('users:profile')}) ## редирект динамический
+                return HttpResponse(headers={'HX-Redirect': reverse('users:profile')})
             return redirect('users:profile')
     else:
         form = CustomUserUpdateForm(instance=request.user)
@@ -51,10 +52,12 @@ def profile_view(request):
         'recommended_products': recommended_products
     })
 
+
 @login_required(login_url='/users/login')
 def account_details(request):
     user = CustomUser.objects.get(id=request.user.id)
     return TemplateResponse(request, 'users/partials/account_details.html', {'user': user})
+
 
 @login_required(login_url='/users/login')
 def edit_account_details(request):
@@ -85,5 +88,120 @@ def update_account_details(request):
 def logout_view(request):
     logout(request)
     if request.headers.get('HX-Request'):
-        return HttpResponse(headers={'HX-Redirect': reverse('main:index')})
+        return redirect('main:index')
     return redirect('main:index')
+
+
+class ProfileProductsView(TemplateView):
+    template_name = 'main/base.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        login = kwargs.get('login')
+
+        try:
+            user = CustomUser.objects.get(login=login)
+            products_ids = user.get_product_ids()
+        except CustomUser.DoesNotExist:
+            products_ids = []
+        
+        context["login"] = login
+        context["access"] =user.access
+        context["products_list_ids"] = products_ids
+        return context
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return TemplateResponse(request, "users/product_view.html", context)
+
+
+def DeleteUserProduct(request, *args, **kwargs):
+    product_id = kwargs.get('product_id')
+    
+    try:
+        user = request.user
+        login = user.login
+        if request.user.login != login:
+            if request.headers.get('HX-Request'):
+                return HttpResponse(
+                    '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>ACCESS DENIED</button>'
+                )
+            return redirect('users:profile_products_view', login=request.user.login)
+    
+        product = user.products.get(id=product_id)
+        if product:
+            product.delete()
+            if request.headers.get('HX-Request'):
+                    return HttpResponse(
+                        '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>DELETED</button>'
+                    )
+        else:
+            return HttpResponse(
+                '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>Product doesnt exists</button>'
+            )
+        
+    except Exception as e:
+        print(f"Error adding product: {e}")
+        if request.headers.get('HX-Request'):
+            return HttpResponse(
+                '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>ERROR</button>'
+            )
+    return redirect('users:profile_products_view', login=login)
+
+
+@login_required
+def add_product(request, *args, **kwargs):
+    product_id = kwargs.get('product_id')
+    login = kwargs.get('login')
+    
+    if request.user.login != login:
+        if request.headers.get('HX-Request'):
+            return HttpResponse(
+                '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>ACCESS DENIED</button>'
+            )
+        return redirect('users:profile_products_view', login=request.user.login)
+    
+    try:
+        user = get_object_or_404(CustomUser, login=login)
+        product = get_object_or_404(Product, id=product_id)
+        
+        if user.products.filter(id=product_id).exists():
+            if request.headers.get('HX-Request'):
+                return HttpResponse (
+                    '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>ALREADY IN WISHLIST</button>'
+                )
+        else:
+            user.products.add(product)
+            if request.headers.get('HX-Request'):
+                return HttpResponse(
+                    '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>ADDED TO WISHLIST</button>'
+                )
+            
+    except Exception as e:
+        print(f"Error adding product: {e}")
+        if request.headers.get('HX-Request'):
+            return HttpResponse(
+                '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>ERROR</button>'
+            )
+
+    
+    return redirect('users:profile_products_view', login=login)
+
+
+@login_required
+def create_product(request): 
+    if request.method == 'POST':
+        form = AddProductForm(request.POST, request.FILES) 
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.save() 
+            request.user.products.add(product)
+            if request.headers.get('HX-Request'):
+                return TemplateResponse(request, 'users/create_product.html', {'form': AddProductForm()}) 
+            else:
+                return redirect('users:profile_products_view', login = request.user.login)  
+        else:
+            return TemplateResponse(request, 'users/create_product.html', {'form': form})
+    else:
+        form = AddProductForm()
+        return TemplateResponse(request, 'users/create_product.html', {'form': form})
+

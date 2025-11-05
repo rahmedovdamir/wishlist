@@ -89,36 +89,32 @@
             </div>
             {% endif %}
 
-            <!-- Add to Cart -->
+            {% if user.is_authenticated %}
             <div class="space-y-4">
-                <button id="add-to-cart-btn" 
-                        class="w-full bg-black text-white py-3 px-6 text-sm font-medium hover:bg-gray-800 transition-colors"
-                        onclick="addToCart()"
-                        {% if not product.product_sizes.all %}disabled{% endif %}>
-                    ADD TO CART
-                </button>
-                
-                <button class="w-full border border-gray-300 py-3 px-6 text-sm font-medium hover:border-gray-900 transition-colors">
+                <button 
+                hx-post="{% url 'users:add_product' user.login product.id  %}"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                class="w-full border border-gray-300 py-3 px-6 text-sm font-medium hover:border-gray-900 transition-colors bg-black text-white">
                     ADD TO WISHLIST
                 </button>
             </div>
-
+            {% endif %}
+            {% if request.user.login == user_login and user.is_authenticated}
+            <div class="space-y-4">
+                <button 
+                hx-post="{% url 'users:delete_product'  product.id  %}"
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                class="w-full border border-gray-300 py-3 px-6 text-sm font-medium hover:border-gray-900 transition-colors bg-black text-white">
+                    DELETE
+                </button>
+            </div>
+            {% endif %}
             <!-- Product Details -->
             <div class="border-t border-gray-200 pt-6">
                 <h3 class="text-sm font-medium text-gray-900 mb-3">DETAILS</h3>
                 <div class="prose prose-sm text-gray-600">
                     <p>{{ product.description|linebreaks }}</p>
                     <p>Created: {{ product.created_at|date:"F d, Y" }}</p>
-                </div>
-            </div>
-
-            <!-- Care Instructions -->
-            <div class="border-t border-gray-200 pt-6">
-                <h3 class="text-sm font-medium text-gray-900 mb-3">CARE</h3>
-                <div class="prose prose-sm text-gray-600">
-                    <p>Professional dry clean only</p>
-                    <p>Do not bleach</p>
-                    <p>Iron at low temperature</p>
                 </div>
             </div>
         </div>

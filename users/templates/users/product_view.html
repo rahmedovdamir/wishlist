@@ -1,21 +1,27 @@
+
 {% block content %}
+{% if login == request.user.login or request.user.is_authenticated == False and access == True %}
 <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Breadcrumb and Filters -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 sm:mb-12 space-y-4 sm:space-y-0">
         <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 uppercase">
-            {% if current_category %}
-                {{ current_category|upper }} > NEW IDEAS
-            {% else %}
-                ALL IDEAS
-            {% endif %}
+            IDEAS: {{user.login}}
         </h2>
-        <button class="bg-black text-white px-4 py-2 text-sm font-medium uppercase hover:bg-gray-800 transition-colors w-full sm:w-auto" 
-                hx-get="{% if current_category %}{% url 'main:catalog' current_category %}{% else %}{% url 'main:catalog_all' %}{% endif %}?show_filters=true&color={{ filter_params.color|urlencode }}&min_price={{ filter_params.min_price|urlencode }}&max_price={{ filter_params.max_price|urlencode }}&size={{ filter_params.size|urlencode }}" 
-                hx-target="#filter-modal-content"
-                hx-swap="innerHTML"
-                hx-on::after-request="document.getElementById('filter-modal').classList.remove('hidden')">
-            FILTERS
-        </button>
+        <div class="hidden md:flex items-center space-x-6">
+            <button class="bg-black text-white px-4 py-2 text-sm font-medium uppercase hover:bg-gray-800 transition-colors w-full sm:w-auto" 
+                hx-get="{% url 'users:create_product'%}" 
+                hx-target="#main-content" 
+                hx-push-url="true">
+            ADD IDEA
+            </button>
+            <button class="bg-black text-white px-4 py-2 text-sm font-medium uppercase hover:bg-gray-800 transition-colors w-full sm:w-auto" 
+                    hx-get="{% if current_category %}{% url 'main:catalog' current_category %}{% else %}{% url 'main:catalog_all' %}{% endif %}?show_filters=true&color={{ filter_params.color|urlencode }}&min_price={{ filter_params.min_price|urlencode }}&max_price={{ filter_params.max_price|urlencode }}&size={{ filter_params.size|urlencode }}" 
+                    hx-target="#filter-modal-content"
+                    hx-swap="innerHTML"
+                    hx-on::after-request="document.getElementById('filter-modal').classList.remove('hidden')">
+                FILTERS
+            </button>
+        </div>
     </div>
 
     <!-- Filter Modal Container -->
@@ -24,10 +30,9 @@
     </div>
 
     <!-- Product Grid -->
-    {% if products %}
+    {% if products_list_ids %}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
-        {% for product in products %}
-        {% if product.feed %}
+        {% for product in products_list_ids %}
         <div class="product-card group cursor-pointer" 
              hx-get="{% url 'main:product_detail' product.slug %}"
              hx-target="#main-content"
@@ -49,7 +54,6 @@
                 <p class="text-sm font-medium">₽{{ product.price }}</p>
             </div>
         </div>
-        {% endif %}
         {% endfor %}
     </div>
     <div class="text-center py-20">
@@ -64,11 +68,7 @@
     <div class="text-center py-20">
         <h3 class="text-2xl font-bold text-gray-900 mb-4 uppercase">No products found</h3>
         <p class="text-gray-600 mb-8">
-            {% if current_category %}
-                No products available in this category yet.
-            {% else %}
                 No products available at the moment.
-            {% endif %}
         </p>
         <a href="{% url 'main:index' %}" 
            hx-get="{% url 'main:index' %}" 
@@ -80,7 +80,13 @@
     </div>
     {% endif %}
 </main>
-
+{% else %}
+<main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 uppercase">
+            Доступ закрыт! Пользователь {{user.login}} предпочел не показывать свой WISHLIST!
+    </h2>
+</main>
+{% endif %}
 <script>
     // Product card hover and click functionality
     document.addEventListener('DOMContentLoaded', function() {

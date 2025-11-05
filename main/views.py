@@ -36,7 +36,6 @@ class CatalogView(TemplateView):
         categories = Category.objects.all()
         products = Product.objects.all().order_by('-created_at') 
         current_category = None
-        
         if category_slug:
             current_category = get_object_or_404(Category, slug=category_slug)
             products = products.filter(category=current_category)
@@ -95,10 +94,11 @@ class ProductDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         product = self.get_object()
         context['categories'] = Category.objects.all()
-        context['related_products'] = Product.objects.filter(
-            category=product.category
-        ).exclude(id=product.id)[:4]
-        context['current_category'] = product.category.slug
+        context['user_login'] = self.request.user.login
+        if product.category:
+            context['current_category'] = product.category.slug
+        else:
+            context['current_category'] = 'some-category-slug'
         return context
     
 

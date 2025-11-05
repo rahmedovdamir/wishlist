@@ -117,7 +117,7 @@
         <div class="p-6">
             <div class="flex justify-between items-center mb-8">
                 <h2 class="text-lg font-bold tracking-tight">
-                    WishList
+                    WishList 
                 </h2>   
                 <button id="closeMenu" class="hamburger active">
                     <span></span>
@@ -151,7 +151,15 @@
                 class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
                     ACCOUNT
                 </a>
-                <a href="#" id="mobileCart" class="block text-sm font-medium text-gray-900 hover:text-gray-700 py-2">CART (0)</a>
+                    {% if request.user.is_authenticated %}
+                    <a href="{% url 'users:profile_products_view' request.user.login %}" 
+                        hx-get="{% url 'users:profile_products_view' request.user.login %}" 
+                        hx-target="#main-content" 
+                        hx-push-url="true"
+                        class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
+                        MyWISHES
+                    </a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -180,16 +188,7 @@
                 </div>
                 
                 <!-- Desktop Navigation -->
-                <nav class="hidden md:flex space-x-8">
-                        <a href="{% url 'main:catalog_all' %}" 
-                            hx-get="{% url 'main:catalog_all' %}" 
-                            hx-target="#main-content" 
-                            hx-push-url="true"
-                            class="nav-link text-sm font-medium text-gray-900 hover:text-gray-700 {% if not current_category %}active{% endif %} ml-40">
-                            ALL IDEAS
-                        </a>
-                </nav>
-                
+
                 <!-- Right side links -->
                 <div class="hidden md:flex items-center space-x-6">
                     <div class="relative" id="mobile-search-wrapper">
@@ -208,12 +207,28 @@
                     class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
                         ACCOUNT
                     </a>
-                    <a href="#" id="desktopCart" class="text-sm font-medium text-gray-900 hover:text-gray-700">CART (0)</a>
+                    {% if request.user.is_authenticated %}
+                    <a href="{% url 'users:profile_products_view' request.user.login %}" 
+                        hx-get="{% url 'users:profile_products_view' request.user.login %}" 
+                        hx-target="#main-content" 
+                        hx-push-url="true"
+                        class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
+                        MyWISHES
+                    </a>
+                    {% endif %}
                 </div>
                 
                 <!-- Mobile Cart Icon -->
                 <div class="md:hidden">
-                    <a href="#" id="mobileCartHeader" class="text-xs font-medium text-gray-900">MyWISHES</a>
+                    {% if request.user.is_authenticated %}
+                    <a href="{% url 'users:profile_products_view' request.user.login %}" 
+                        hx-get="{% url 'users:profile_products_view' request.user.login %}" 
+                        hx-target="#main-content" 
+                        hx-push-url="true"
+                        class="text-sm font-medium text-gray-900 uppercase hover:text-gray-600">
+                        MyWISHES
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -230,20 +245,18 @@
         <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="text-center py-20">
                 <h2 class="text-4xl font-bold tracking-tight text-gray-900 mb-4">
-                    Hello {user}
+                    {% if user.is_authenticated %}
+                        <p> Hello, {{ user.login }}</p>
+                    {% else %}
+                        <p>Hello, guest ! </p>
+                    {% endif %}
                 </h2>
                 <p class="text-lg text-gray-600 mb-8">
                     Select a category to browse ideas
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                    <a href="{% url 'main:catalog_all' %}" 
-                            hx-get="{% url 'main:catalog_all' %}" 
-                            hx-target="#main-content" 
-                            hx-push-url="true"
-                            class="block p-8 border border-gray-200 hover:border-gray-300 transition-colors">
-                            <h3 class="text-xl font-bold">ALL IDEAS</h3>
-                    </a>
                     {% for category in categories %}
+                    {% if category.feed %}
                     <a href="{% url 'main:catalog' category.slug %}" 
                        hx-get="{% url 'main:catalog' category.slug %}" 
                        hx-target="#main-content" 
@@ -251,6 +264,7 @@
                        class="block p-8 border border-gray-200 hover:border-gray-300 transition-colors">
                         <h3 class="text-xl font-bold">{{ category.name|upper }}</h3>
                     </a>
+                    {% endif %}
                     {% endfor %}    
                 </div>
             </div>
