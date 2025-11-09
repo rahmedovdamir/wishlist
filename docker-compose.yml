@@ -19,6 +19,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
     healthcheck:
@@ -36,7 +37,6 @@ services:
     env_file:
       - .env
     volumes:
-      - .:/app
       - static:/app/static
       - media:/app/media
     depends_on:
@@ -44,7 +44,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: sh -c "python manage.py migrate && gunicorn wishlist.wsgi:application --bind 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn wishlist.wsgi:application --bind 0.0.0.0:8000 --workers 3"
     networks:
       - app-network
 
@@ -53,7 +53,6 @@ services:
     env_file:
       - .env
     volumes:
-      - .:/app
       - static:/app/static
       - media:/app/media
     depends_on:
@@ -70,7 +69,6 @@ services:
     env_file:
       - .env
     volumes:
-      - .:/app
       - static:/app/static
       - media:/app/media
     depends_on:
@@ -89,7 +87,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - /etc/letsencrypt/:/etc/letsencrypt/
+      - ./ssl:/etc/nginx/ssl
       - static:/app/static
       - media:/app/media
     depends_on:
