@@ -174,4 +174,4 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')  # Замените
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')  # Замените
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')  # Замените
-SITE_URL = 'https://wishlistt.ru'  # Замените на продакшен-домен
+SITE_URL = 'http://wishlistt.ru'  # Замените на продакшен-домен
