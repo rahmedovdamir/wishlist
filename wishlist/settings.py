@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.join(BASE_DIR))
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'  # ✅ Из env
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'  #
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'wishlistt.ru', 'www.wishlistt.ru', 'your-server-ip']  # ✅ Добавлен IP сервера
 
@@ -26,8 +26,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://wishlistt.ru',
     'http://www.wishlistt.ru',
-    'https://wishlistt.ru',  # ✅ Добавлен HTTPS
-    'https://www.wishlistt.ru',  # ✅ Добавлен HTTPS
+    'https://wishlistt.ru',  
+    'https://www.wishlistt.ru',  
 ]
 
 # Security settings - ПЕРЕНЕСЕНО ВЫШЕ
@@ -88,7 +88,7 @@ DATABASES = {
         'NAME': os.getenv('POSTGRES_DB'),
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('POSTGRES_HOST', 'db'),  # ✅ 'db' для Docker
+        'HOST': os.getenv('POSTGRES_HOST', 'db'),  
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
         'ATOMIC_REQUESTS': True,
     }
@@ -118,14 +118,14 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = '/static/'
-STATIC_ROOT = '/app/static/'  # ✅ Для продакшн
+STATIC_ROOT = '/app/static/'  
 # Убрать STATICFILES_DIRS или оставить только для разработки:
 # STATICFILES_DIRS = [
 #     os.path.join(BASE_DIR, 'static'),
 # ]
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/app/media/'  # ✅ Обновлен путь
+MEDIA_ROOT = '/app/media/'  
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -133,7 +133,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 LOGOUT_REDIRECT_URL = 'main:index'
 
 # Celery settings
-CELERY_BROKER_URL = 'redis://redis:6379/0'  # ✅ 'redis' для Docker
+CELERY_BROKER_URL = 'redis://redis:6379/0'  
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
