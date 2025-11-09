@@ -6,7 +6,7 @@ from .models import Category, Product, Size
 from django.db.models import Q
 
 class IndexView(TemplateView):
-    template_name = 'main/base.html'
+    template_name = 'main/index.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -85,7 +85,7 @@ class CatalogView(TemplateView):
     
 class ProductDetailView(DetailView):
     model = Product
-    template_name = 'main/base.html'
+    template_name = 'main/product_detail.html'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
 
@@ -94,7 +94,10 @@ class ProductDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         product = self.get_object()
         context['categories'] = Category.objects.all()
-        context['user_login'] = self.request.user.login
+        if self.request.user.is_authenticated:
+            context['user_login'] = self.request.user.login
+        else:
+            context['user_login'] = None
         if product.category:
             context['current_category'] = product.category.slug
         else:
@@ -106,5 +109,5 @@ class ProductDetailView(DetailView):
         self.object = self.get_object()
         context = self.get_context_data(**kwargs)
         if request.headers.get('HX-Request'):
-            return TemplateResponse(request, 'main/product_detail.html', context)
+            return TemplateResponse(request, 'main/product_detail_content.html', context)
         return TemplateResponse(request, self.template_name, context)

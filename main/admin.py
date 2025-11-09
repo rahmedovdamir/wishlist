@@ -10,7 +10,7 @@ class ProductSizeInline(admin.TabularInline):
     extra = 1
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'color' , 'price', 'feed']
+    list_display = ['name', 'category', 'color' , 'price', 'url',  'feed']
     list_filter = ['category', 'color']
     search_fields = ['name', 'color' , 'description']
     prepopulated_fields = {'slug': ('name',)}

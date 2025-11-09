@@ -3,7 +3,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import get_user_model, authenticate
 from django.utils.html import strip_tags
 from django.core.validators import RegexValidator
-
+from django import forms
+from .models import Product, ProductImage, Category
 
 User = get_user_model()
 
@@ -24,7 +25,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ('login', 'first_name', 'last_name', 'email', 'password1', 'password2')  # Добавлен login
+        fields = ('login', 'first_name', 'last_name', 'email', 'password1', 'password2')  
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -60,11 +61,6 @@ class CustomUserLoginForm(AuthenticationForm):
 
 
 class CustomUserUpdateForm(forms.ModelForm):
-    login = forms.CharField(
-        required=True,
-        max_length=50,
-        widget=forms.TextInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'LOGIN'})
-    )
     first_name = forms.CharField(
         required=True,
         max_length=50,
@@ -79,10 +75,14 @@ class CustomUserUpdateForm(forms.ModelForm):
         required=True, 
         widget=forms.EmailInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'EMAIL'})
     )
+    access = forms.BooleanField(
+        required=False, 
+        widget=forms.TextInput(attrs={'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 'placeholder': 'Открыть профиль'})  # ← ИСПРАВЛЕНО
+    )
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email')
+        fields = ('first_name', 'last_name', 'email', 'access') 
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -95,10 +95,8 @@ class CustomUserUpdateForm(forms.ModelForm):
         if login and User.objects.filter(login=login).exclude(id=self.instance.id).exists():
             raise forms.ValidationError('This login is already in use.')
         return login
-    
 
-from django import forms
-from .models import Product, ProductImage, Category
+
 
 class AddProductForm(forms.ModelForm):
     name = forms.CharField(
@@ -134,6 +132,13 @@ class AddProductForm(forms.ModelForm):
             'rows': 4
         })
     )
+    url = forms.URLField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 
+            'placeholder': 'ссылка на продукт',
+        })
+    )
     main_image = forms.ImageField(
         required=True,
         widget=forms.FileInput(attrs={
@@ -147,15 +152,49 @@ class AddProductForm(forms.ModelForm):
         })
     )
 
-    category = forms.ModelChoiceField(
-        queryset=Category.objects.all(),
+    category = forms.CharField(
         required=True,
-        empty_label="Select Category",
-        widget=forms.Select(attrs={
-            'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900'
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 
+            'placeholder': 'CATEGORY'
         })
     )
 
     class Meta:
         model = Product
-        fields = ('name','color', 'price', 'description', 'main_image', 'category')
+        fields = ('name','color', 'price', 'description', 'main_image')
+    
+    def clean_category_name(self):
+        category_name = self.cleaned_data.get('category_name')
+        if not category_name:
+            raise forms.ValidationError("Поле категории обязательно для заполнения.")
+        return category_name
+    
+class PasswordResetRequestForm(forms.Form):
+    email = forms.EmailField(
+        label="Email",
+        max_length=66,
+        widget=forms.EmailInput(attrs={'class': 'input-register form-control', 
+                                       'placeholder': 'Your email'})
+    )
+
+class PasswordResetConfirmForm(forms.Form):
+    new_password1 = forms.CharField(
+        label="New Password",
+        widget=forms.PasswordInput(attrs={'class': 'input-register form-control', 
+                                          'placeholder': 'New password'})
+    )
+    new_password2 = forms.CharField(
+        label="Confirm New Password",
+        widget=forms.PasswordInput(attrs={'class': 'input-register form-control', 
+                                          'placeholder': 'Confirm new password'})
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password1 = cleaned_data.get('new_password1')
+        new_password2 = cleaned_data.get('new_password2')
+        if new_password1 and new_password2 and new_password1 != new_password2:
+            raise forms.ValidationError("Passwords do not match.")
+        return cleaned_data

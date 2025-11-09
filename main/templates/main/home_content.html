@@ -3,15 +3,23 @@
     <div class="text-center py-20">
         <h2 class="text-4xl font-bold tracking-tight text-gray-900 mb-4">
             {% if user.is_authenticated %}
-                <p> Hello, {{ user.login }}</p>
+                <p> Привет, {{ user.login }}</p>
             {% else %}
-                <p>Hello, guest ! </p>
+                <p>Привет, гость ! </p>
             {% endif %}
         </h2>
         <p class="text-lg text-gray-600 mb-8">
-            Select a category to browse ideas
+            Выберите категорию для просмотра идей
         </p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <a href="{% url 'main:catalog_all' %}" 
+                hx-get="{% url 'main:catalog_all' %}" 
+                hx-target="#main-content" 
+                hx-push-url="true"
+                class="block p-8 border border-gray-200 hover:border-gray-300 transition-colors">
+                <h3 class="text-xl font-bold">Все идеи</h3>
+            </a>
+            
             {% for category in categories %}
             {% if category.feed %}
             <a href="{% url 'main:catalog' category.slug %}" 

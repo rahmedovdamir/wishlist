@@ -1,5 +1,7 @@
 from django.db import models
-from django.utils.text import slugify
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
+from slugify import slugify
 
 class Category(models.Model):
     name = models.CharField(max_length=100, null=True)
@@ -40,13 +42,21 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)  
     updated_at = models.DateTimeField(auto_now=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', null=True, blank=True)
+    url = models.URLField(max_length=200, null=True, blank=True)
     feed = models.BooleanField(default=False)
 
-
+    def clean(self):
+        if self.url:
+            validator = URLValidator()
+            try:
+                validator(self.url)
+            except ValidationError:
+                raise ValidationError("Please enter a valid URL")
+            
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)   
 
     def __str__(self):
         return self.name

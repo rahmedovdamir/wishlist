@@ -13,9 +13,38 @@
         color: #6b7280;
         font-weight: 500;
     }
+    .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .custom-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #d1d5db;
+        border-radius: 4px;
+        background: white;
+        cursor: pointer;
+        position: relative;
+    }
+    .custom-checkbox:checked {
+        background-color: #000;
+        border-color: #000;
+    }
+    .custom-checkbox:checked::after {
+        content: '✓';
+        position: absolute;
+        color: white;
+        font-size: 14px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
 </style>
 
-<form method="post" action="#" class="space-y-6" 
+<form method="post" class="space-y-6" 
       hx-post="{% url 'users:update_account_details' %}" 
       hx-target="#account-details-content">
     {% csrf_token %}
@@ -42,76 +71,32 @@
         {% endif %}
     </div>
     
-    <div>
-        {{ form.company }}
-        {% if form.company.errors %}
-            <div class="text-red-500 text-xs mt-1">{{ form.company.errors }}</div>
-        {% endif %}
+    <div class="checkbox-container">
+        <input type="checkbox" name="access" id="id_access" class="custom-checkbox" 
+               {% if form.access.value %}checked{% endif %}>
+        <label for="id_access" class="text-sm text-gray-700 cursor-pointer">
+            Профиль открытый
+        </label>
     </div>
-    
-    <div>
-        {{ form.address1 }}
-        {% if form.address1.errors %}
-            <div class="text-red-500 text-xs mt-1">{{ form.address1.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <div>
-        {{ form.address2 }}
-        {% if form.address2.errors %}
-            <div class="text-red-500 text-xs mt-1">{{ form.address2.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <div>
-        {{ form.city }}
-        {% if form.city.errors %}
-            <div class="text-red-500 text-xs mt-1">{{ form.city.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <div>
-        {{ form.country }}
-        {% if form.country.errors %}
-            <div class="text-red-500 text-xs mt-1">{{ form.country.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <div>
-        {{ form.province }}
-        {% if form.province.errors %}
-            <div class="text-red-500 text-xs mt-1">{{ form.province.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <div>
-        {{ form.postal_code }}
-        {% if form.postal_code.errors %}
-            <div class="text-red-500 text-xs mt-1">{{ form.postal_code.errors }}</div>
-        {% endif %}
-    </div>
-    
-    <div>
-        {{ form.phone }}
-        {% if form.phone.errors %}
-            <div class="text-red-500 text-xs mt-1">{{ form.phone.errors }}</div>
-        {% endif %}
-    </div>
+    {% if form.access.errors %}
+        <div class="text-red-500 text-xs mt-1">{{ form.access.errors }}</div>
+    {% endif %}
     
     <div class="flex gap-4">
         <button 
             type="submit"
             class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 transition-colors duration-200 text-sm tracking-wide"
         >
-            Save
+            Сохранить
         </button>
         <button 
             type="button"
-            hx-get="{% url 'users:account_details' %}" 
-            hx-target="#account-details-content" 
+            hx-get="{% url 'users:profile' %}"
+            hx-target="#main-content"
+            hx-push-url="true"
             class="border-2 border-gray-300 hover:border-gray-400 text-gray-700 hover:text-gray-900 font-semibold py-2 px-4 transition-colors duration-200 text-sm tracking-wide"
         >
-            Cancel
+            Назад
         </button>
     </div>
 </form>
