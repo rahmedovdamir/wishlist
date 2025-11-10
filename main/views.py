@@ -21,7 +21,7 @@ class IndexView(TemplateView):
         return TemplateResponse(request, self.template_name, context)
     
 class CatalogView(TemplateView):
-    template_name = 'main/base.html'
+    template_name = 'main/catalog.html'
 
     FILTER_MAPPING = {
         'color': lambda queryset, value: queryset.filter(color__iexact=value),
@@ -79,7 +79,7 @@ class CatalogView(TemplateView):
                 return TemplateResponse(request, "main/search_input.html", context)
             elif context.get('reset_search'):
                 return TemplateResponse(request, "main/search_button.html", context)  
-            template = "main/filter_modal.html" if request.GET.get('show_filters') == 'true' else 'main/catalog.html'
+            template = "main/filter_modal.html" if request.GET.get('show_filters') == 'true' else 'main/catalog_content.html'
             return TemplateResponse(request, template, context)
         return TemplateResponse(request, self.template_name, context)
     

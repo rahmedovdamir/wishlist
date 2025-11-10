@@ -31,9 +31,13 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Security settings - ПЕРЕНЕСЕНО ВЫШЕ
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT is disabled because nginx handles HTTP->HTTPS redirect
+# Nginx redirects HTTP to HTTPS (see nginx.conf line 15), so Django should not also redirect
+SECURE_SSL_REDIRECT = False
+# Secure cookies should only be required in production when using HTTPS
+# Since nginx sets X-Forwarded-Proto header, Django knows when request is secure
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 USE_X_FORWARDED_HOST = True

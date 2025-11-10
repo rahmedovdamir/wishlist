@@ -1,3 +1,4 @@
+main
 <div class="p-6">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold tracking-tight text-gray-900 uppercase">Filters</h2>
@@ -7,7 +8,7 @@
         </button>
     </div>
 
-    <form hx-get="{% if current_category %}{% url 'main:catalog' current_category %}{% else %}{% url 'main:catalog_all' %}{% endif %}" 
+    <form hx-get="{% if current_category %}{% url 'main:catalog' current_category.slug %}{% else %}{% url 'main:catalog_all' %}{% endif %}" 
           hx-target="#main-content" 
           hx-push-url="true">
         <input type="hidden" name="q" value="{{ filter_params.q|default:'' }}">
