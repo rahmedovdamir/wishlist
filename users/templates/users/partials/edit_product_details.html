@@ -131,7 +131,15 @@ body {
             hx-post="{% url 'users:update_product_details' product.id %}" 
             hx-target="#main-content">
             {% csrf_token %}
-            
+            <div id="form-errors" class="mb-4">
+                {% if form.non_field_errors %}
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
             <div>
                 {{ form.name }}
                 {% if form.name.errors %}

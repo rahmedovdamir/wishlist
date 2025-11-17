@@ -109,6 +109,13 @@
                 class="w-full border border-gray-300 py-3 px-6 text-sm font-medium hover:border-gray-900 transition-colors bg-black text-white">
                     DELETE
                 </button>
+                <button>
+                    hx-get="{% url 'users:update_product_details' %}" 
+                    hx-target="#product-details-content"     
+                    x-swap="innerHTML"
+                    class="bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 transition-colors duration-200 text-sm tracking-wide">
+                    Изменить
+                </button>
             </div>
             {% endif %}
             <!-- Product Details -->
