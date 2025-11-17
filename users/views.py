@@ -5,11 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from django.template.response import TemplateResponse
-from .forms import CustomUserCreationForm, CustomUserLoginForm, CustomUserUpdateForm , AddProductForm, PasswordResetRequestForm, PasswordResetConfirmForm
+from .forms import CustomUserCreationForm, CustomUserLoginForm, CustomUserUpdateForm , AddProductForm, PasswordResetRequestForm, PasswordResetConfirmForm, UpdateProductForm
 from .tasks import send_welcome_email, send_password_reset_email
 from .models import CustomUser
 from django.contrib import messages
-from main.models import Product, Category
+from main.models import Product, Category, ProductImage
 from django.views.generic import TemplateView, DetailView
 from django.contrib.auth import update_session_auth_hash
 from slugify import slugify
@@ -226,14 +226,16 @@ def create_product(request):
         form = AddProductForm(request.POST, request.FILES)
         if form.is_valid():
             category_name = form.cleaned_data['category']
-            category,created = Category.objects.get_or_create(
+            category, created = Category.objects.get_or_create(
                 name=category_name,
                 defaults={'slug': slugify(category_name)} 
             )
             product = form.save(commit=False)
             product.category = category
+            product.url = form.cleaned_data.get('url', '') 
             product.save()
             request.user.products.add(product)
+            
             if request.headers.get('HX-Request'):
                 response = HttpResponse()
                 response['HX-Redirect'] = reverse('users:profile_products_view', kwargs={'login': request.user.login})
@@ -249,6 +251,7 @@ def create_product(request):
             return TemplateResponse(request, 'users/create_product_content.html', {'form': form})
         else:
             return TemplateResponse(request, 'users/create_product.html', {'form': form})
+
 
 def password_reset_request(request):
     if request.method == 'POST':
@@ -290,3 +293,50 @@ def password_reset_confirm(request, uidb64, token):
         return render(request, 'users/password_reset_confirm.html', {'form': form, 'validlink': True})
     else:
         return render(request, 'users/password_reset_confirm.html', {'validlink': False})
+
+@login_required(login_url='/users/login')
+def update_product_details(request, product_id):
+    try:
+        product = request.user.products.get(id=product_id)
+    except Product.DoesNotExist:
+        if request.headers.get('HX-Request'):
+            return HttpResponse("Product not found", status=404)
+        return redirect('users:profile_products_view', login=request.user.login)
+    
+    if request.method == 'POST':
+        form = UpdateProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            product = form.save(commit=False)
+            category_name = form.cleaned_data['category']
+            if category_name:
+                category, created = Category.objects.get_or_create(
+                    name=category_name,
+                    defaults={'slug': slugify(category_name)} 
+                )
+                product.category = category
+            product.save()
+            extra_image = request.FILES.get('extra_image')
+            if extra_image:
+                ProductImage.objects.create(product=product, image=extra_image)
+            
+            if request.headers.get('HX-Request'):
+                response = HttpResponse()
+                response['HX-Redirect'] = reverse('users:profile_products_view', kwargs={'login': request.user.login})
+                return response
+            else:
+                return redirect('users:profile_products_view', login=request.user.login)
+        else:
+            return TemplateResponse(request, 'users/partials/edit_product_details.html', 
+                                  {'form': form, 'product': product})
+    
+    # GET запрос - показываем форму редактирования
+    initial_data = {}
+    if product.category:
+        initial_data['category'] = product.category.name
+    
+    form = UpdateProductForm(instance=product, initial=initial_data)
+    
+    if request.headers.get('HX-Request'):
+        return TemplateResponse(request, 'users/partials/edit_product_details.html', 
+                              {'form': form, 'product': product})
+    return redirect('users:profile_products_view', login=request.user.login)

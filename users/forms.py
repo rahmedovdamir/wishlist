@@ -97,8 +97,7 @@ class CustomUserUpdateForm(forms.ModelForm):
         return login
 
 
-
-class AddProductForm(forms.ModelForm):
+class BaseProductForm(forms.ModelForm):
     name = forms.CharField(
         required=True,
         max_length=100,
@@ -140,7 +139,7 @@ class AddProductForm(forms.ModelForm):
         })
     )
     main_image = forms.ImageField(
-        required=True,
+        required=False,  
         widget=forms.FileInput(attrs={
             'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500'
         })
@@ -151,7 +150,6 @@ class AddProductForm(forms.ModelForm):
             'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500'
         })
     )
-
     category = forms.CharField(
         required=True,
         max_length=100,
@@ -163,13 +161,31 @@ class AddProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ('name','color', 'price', 'description', 'main_image')
+        fields = ('name', 'color', 'price', 'description', 'main_image', 'url')
     
-    def clean_category_name(self):
-        category_name = self.cleaned_data.get('category_name')
+    def clean_category(self):
+        category_name = self.cleaned_data.get('category')
         if not category_name:
             raise forms.ValidationError("Поле категории обязательно для заполнения.")
         return category_name
+
+
+class AddProductForm(BaseProductForm):
+    main_image = forms.ImageField(
+        required=True,  
+        widget=forms.FileInput(attrs={
+            'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500'
+        })
+    )
+
+
+class UpdateProductForm(BaseProductForm):
+    main_image = forms.ImageField(
+        required=False, 
+        widget=forms.FileInput(attrs={
+            'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500'
+        })
+    )
     
 class PasswordResetRequestForm(forms.Form):
     email = forms.EmailField(

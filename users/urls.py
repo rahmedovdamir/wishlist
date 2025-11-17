@@ -12,6 +12,7 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),  
     path('edit-account-details/', views.edit_account_details, name='edit_account_details'),
     path('update-account-details/', views.update_account_details, name='update_account_details'),
+    path('update-product/<int:product_id>/', views.update_product_details, name='update_product_details'),
     
     # Product routes
     path('create_product/', views.create_product, name='create_product'),  
