@@ -160,8 +160,9 @@ def DeleteUserProduct(request, *args, **kwargs):
             return redirect('users:profile_products_view', login=request.user.login)
     
         product = user.products.get(id=product_id)
+            
         if product:
-            product.delete()
+            user.products.remove(product)
             if request.headers.get('HX-Request'):
                     return HttpResponse(
                         '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>DELETED</button>'

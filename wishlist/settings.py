@@ -18,6 +18,14 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'  #
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'wishlistt.ru', 'www.wishlistt.ru', 'your-server-ip']  # ✅ Добавлен IP сервера
 
@@ -29,19 +37,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://wishlistt.ru',  
     'https://www.wishlistt.ru',  
 ]
-
-# Security settings - ПЕРЕНЕСЕНО ВЫШЕ
-# SECURE_SSL_REDIRECT is disabled because nginx handles HTTP->HTTPS redirect
-# Nginx redirects HTTP to HTTPS (see nginx.conf line 15), so Django should not also redirect
-SECURE_SSL_REDIRECT = False
-# Secure cookies should only be required in production when using HTTPS
-# Since nginx sets X-Forwarded-Proto header, Django knows when request is secure
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
-USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 INSTALLED_APPS = [
@@ -89,7 +84,7 @@ WSGI_APPLICATION = 'wishlist.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
+        'NAME': os.getenv('POSTGRES_DB', 'wishlist'),
         'USER': os.getenv('POSTGRES_USER'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': os.getenv('POSTGRES_HOST', 'db'),  

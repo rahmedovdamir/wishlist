@@ -3,6 +3,7 @@ version: '3.8'
 services:
   db:
     image: postgres:16
+    restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -19,6 +20,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    restart: always
     command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
@@ -32,6 +34,7 @@ services:
 
   web:
     build: .
+    restart: always
     ports:
       - "8000:8000"
     env_file:
@@ -49,6 +52,7 @@ services:
 
   celery:
     build: .
+    restart: always
     env_file:
       - .env
     volumes:
@@ -65,6 +69,7 @@ services:
 
   celery-beat:
     build: .
+    restart: always
     env_file:
       - .env
     volumes:
@@ -81,12 +86,13 @@ services:
 
   nginx:
     image: nginx:latest
+    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
+      - /etc/letsencrypt:/etc/letsencrypt:ro
       - static:/app/static
       - media:/app/media
     depends_on:
@@ -103,3 +109,4 @@ volumes:
 networks:
   app-network:
     driver: bridge
+

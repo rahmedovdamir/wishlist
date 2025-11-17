@@ -134,7 +134,7 @@ class AddProductForm(forms.ModelForm):
     )
     url = forms.URLField(
         required=False,
-        widget=forms.TextInput(attrs={
+        widget=forms.URLInput(attrs={
             'class': 'dotted-input w-full py-3 text-sm font-medium text-gray-900 placeholder-gray-500', 
             'placeholder': 'ссылка на продукт',
         })

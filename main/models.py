@@ -42,7 +42,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)  
     updated_at = models.DateTimeField(auto_now=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products', null=True, blank=True)
-    url = models.URLField(max_length=200, null=True, blank=True)
+    url = models.URLField(max_length=200, blank=True)
     feed = models.BooleanField(default=False)
 
     def clean(self):
