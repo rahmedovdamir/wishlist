@@ -164,14 +164,13 @@ def DeleteUserProduct(request, *args, **kwargs):
         if product:
             user.products.remove(product)
             if request.headers.get('HX-Request'):
-                    return HttpResponse(
-                        '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>DELETED</button>'
-                    )
+                    response = HttpResponse()
+                    response['HX-Redirect'] = reverse('users:profile_products_view', kwargs={'login': request.user.login})
+                    return response
         else:
             return HttpResponse(
                 '<button class="w-full  py-3 px-6 text-sm font-medium bg-black text-white cursor-not-allowed" disabled>Product doesnt exists</button>'
             )
-        
     except Exception as e:
         print(f"Error adding product: {e}")
         if request.headers.get('HX-Request'):
