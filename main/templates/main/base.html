@@ -5,11 +5,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="WishList">
+    <link rel="apple-touch-icon" href="{% static 'icons/wishlist.png' %}">
     <title>{% block title %}WishList{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link rel="manifest" href="{% static 'manifest.json' %}" />
 </head>
 <body class="bg-white">
     <!-- Mobile Menu Overlay -->
@@ -148,6 +153,13 @@
         {% endblock %}
     </div>
 <script>
+function initServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('{% static "sw.js" %}')
+            .then(registration => console.log('SW registered:', registration))
+            .catch(error => console.log('SW registration failed:', error));
+    }
+}
 // Глобальные функции
 function initMobileMenu() {
     const menuToggle = document.getElementById('menuToggle');
@@ -156,7 +168,6 @@ function initMobileMenu() {
     const overlay = document.getElementById('overlay');
 
     if (!menuToggle || !mobileMenu) return;
-
     function openMobileMenu() {
         mobileMenu.classList.add('open');
         if (overlay) overlay.classList.add('active');
@@ -192,6 +203,7 @@ function updateActiveNavLinks() {
 document.addEventListener('DOMContentLoaded', function() {
     initMobileMenu();
     updateActiveNavLinks();
+    initServiceWorker();
 });
 
 // Переинициализация после HTMX

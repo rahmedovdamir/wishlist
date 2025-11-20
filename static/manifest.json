@@ -1,0 +1,21 @@
+{
+  "name": "WishList",
+  "short_name": "Wishes",
+  "icons": [
+    {
+      "src": "/static/icons/wishlist.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/wishlist-512.png", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#e4d5e5",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/"
+}
